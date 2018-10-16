@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { WebSocketService } from "./services/web-socket.service";
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,18 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'coffee-iot-ui';
+
+  public coffeesMade = 0;
+
+  constructor(private webSocketService: WebSocketService) {
+
+    let stompClient = this.webSocketService.connect();
+    stompClient.connect({}, frame => {
+
+      stompClient.subscribe('/topic/notification', notifications => {
+
+        this.coffeesMade = JSON.parse(notifications.body).count;
+      })
+    });
+  }
 }
